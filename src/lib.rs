@@ -1,6 +1,7 @@
 #[macro_use] extern crate aoc_runner_derive;
 
 pub mod day01;
+pub mod day02;
 
 #[cfg(target_env = "DONT_COMPILE_THIS")] pub mod template;
 
