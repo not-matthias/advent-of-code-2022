@@ -2,6 +2,26 @@ use aoc_runner_derive::{aoc, aoc_generator};
 use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug)]
+pub enum RoundResult {
+    Loss,
+    Draw,
+    Win,
+}
+
+impl FromStr for RoundResult {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "X" => Ok(RoundResult::Loss),
+            "Y" => Ok(RoundResult::Draw),
+            "Z" => Ok(RoundResult::Win),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
 pub enum Shape {
     Rock,
     Paper,
@@ -14,6 +34,23 @@ impl Shape {
             Shape::Rock => 1,
             Shape::Paper => 2,
             Shape::Scissors => 3,
+        }
+    }
+
+    // Finds the correct move to achieve the round result (win, draw, loss)
+    pub fn correct_move(&self, result: RoundResult) -> Shape {
+        match result {
+            RoundResult::Win => match self {
+                Shape::Rock => Shape::Paper,
+                Shape::Paper => Shape::Scissors,
+                Shape::Scissors => Shape::Rock,
+            },
+            RoundResult::Draw => *self,
+            RoundResult::Loss => match self {
+                Shape::Rock => Shape::Scissors,
+                Shape::Paper => Shape::Rock,
+                Shape::Scissors => Shape::Paper,
+            },
         }
     }
 }
@@ -34,7 +71,7 @@ impl FromStr for Shape {
 #[derive(Clone, Copy, Debug)]
 pub struct Move {
     player1: Shape,
-    player2: Shape,
+    result: RoundResult,
 }
 
 impl Move {
@@ -48,7 +85,9 @@ impl Move {
     /// 2 = paper
     /// 3 = scissors
     pub fn play(&self) -> (u32, u32) {
-        let (a, b) = match (self.player1, self.player2) {
+        let player2 = self.player1.correct_move(self.result);
+
+        let (a, b) = match (self.player1, player2) {
             (Shape::Rock, Shape::Rock)
             | (Shape::Paper, Shape::Paper)
             | (Shape::Scissors, Shape::Scissors) => (3, 3),
@@ -61,7 +100,7 @@ impl Move {
             _ => unreachable!(),
         };
 
-        (a + self.player1.score(), b + self.player2.score())
+        (a + self.player1.score(), b + player2.score())
     }
 }
 
@@ -71,8 +110,8 @@ impl FromStr for Move {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split_whitespace();
         let player1 = parts.next().ok_or(())?.parse()?;
-        let player2 = parts.next().ok_or(())?.parse()?;
-        Ok(Move { player1, player2 })
+        let result = parts.next().ok_or(())?.parse()?;
+        Ok(Move { player1, result })
     }
 }
 
@@ -95,11 +134,13 @@ fn solve_part_1(input: &[Move]) -> u32 {
     player_2_score
 }
 
-// #[aoc(day2, part2)]
-// fn solve_part_2(input: &[u8]) -> u32 {
-//
-// todo!()
-// }
+#[aoc(day2, part2)]
+fn solve_part_2(input: &[Move]) -> u32 {
+    let player_1_score = input.iter().map(|m| m.play().0).sum::<u32>();
+    let player_2_score = input.iter().map(|m| m.play().1).sum::<u32>();
+
+    player_2_score
+}
 
 #[cfg(test)]
 mod tests {
@@ -112,7 +153,7 @@ mod tests {
         let input = get_input();
         let input = parse_input(input);
 
-        assert_eq!(solve_part_1(&input), 0);
-        // assert_eq!(solve_part_2(&input), 0);
+        // assert_eq!(solve_part_1(&input), 15);
+        assert_eq!(solve_part_2(&input), 1);
     }
 }
