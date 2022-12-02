@@ -1,5 +1,3 @@
-
-
 #[aoc_generator(day1)]
 fn parse_input(input: &str) -> Vec<u32> {
     let inputs = input

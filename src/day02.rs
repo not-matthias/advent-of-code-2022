@@ -68,26 +68,14 @@ impl FromStr for Shape {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct Move {
+pub struct Part1Move {
     player1: Shape,
-    result: RoundResult,
+    player2: Shape,
 }
 
-impl Move {
-    /// Returns the score for both players
-    ///
-    /// 0 = loss
-    /// 3 = draw
-    /// 6 = win
-    ///
-    /// 1 = rock
-    /// 2 = paper
-    /// 3 = scissors
+impl Part1Move {
     pub fn play(&self) -> (u32, u32) {
-        let player2 = self.player1.correct_move(self.result);
-
-        let (a, b) = match (self.player1, player2) {
+        let (a, b) = match (self.player1, self.player2) {
             (Shape::Rock, Shape::Rock)
             | (Shape::Paper, Shape::Paper)
             | (Shape::Scissors, Shape::Scissors) => (3, 3),
@@ -97,49 +85,76 @@ impl Move {
             (Shape::Rock, Shape::Scissors)
             | (Shape::Paper, Shape::Rock)
             | (Shape::Scissors, Shape::Paper) => (6, 0),
-            _ => unreachable!(),
         };
 
-        (a + self.player1.score(), b + player2.score())
+        (a + self.player1.score(), b + self.player2.score())
     }
 }
 
-impl FromStr for Move {
+impl FromStr for Part1Move {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut parts = s.split_whitespace();
+        let player1 = parts.next().ok_or(())?.parse()?;
+        let player2 = parts.next().ok_or(())?.parse()?;
+        Ok(Part1Move { player1, player2 })
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Part2Move {
+    player1: Shape,
+    result: RoundResult,
+}
+
+impl Part2Move {
+    pub fn play(&self) -> (u32, u32) {
+        let player2 = self.player1.correct_move(self.result);
+
+        Part1Move {
+            player1: self.player1,
+            player2,
+        }
+        .play()
+    }
+}
+
+impl FromStr for Part2Move {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split_whitespace();
         let player1 = parts.next().ok_or(())?.parse()?;
         let result = parts.next().ok_or(())?.parse()?;
-        Ok(Move { player1, result })
+        Ok(Part2Move { player1, result })
     }
 }
 
-#[aoc_generator(day2)]
-fn parse_input(input: &str) -> Vec<Move> {
+#[aoc_generator(day2, part1)]
+fn part_1_parse_input(input: &str) -> Vec<Part1Move> {
     input
         .lines()
-        .map(|line| Move::from_str(line).unwrap())
+        .map(|line| Part1Move::from_str(line).unwrap())
+        .collect::<Vec<_>>()
+}
+
+#[aoc_generator(day2, part2)]
+fn part_2_parse_input(input: &str) -> Vec<Part2Move> {
+    input
+        .lines()
+        .map(|line| Part2Move::from_str(line).unwrap())
         .collect::<Vec<_>>()
 }
 
 #[aoc(day2, part1)]
-fn solve_part_1(input: &[Move]) -> u32 {
-    let player_1_score = input.iter().map(|m| m.play().0).sum::<u32>();
-    let player_2_score = input.iter().map(|m| m.play().1).sum::<u32>();
-
-    println!("Player 1: {}", player_1_score);
-    println!("Player 2: {}", player_2_score);
-
-    player_2_score
+fn solve_part_1(input: &[Part1Move]) -> u32 {
+    input.iter().map(|m| m.play().1).sum::<u32>()
 }
 
 #[aoc(day2, part2)]
-fn solve_part_2(input: &[Move]) -> u32 {
-    let player_1_score = input.iter().map(|m| m.play().0).sum::<u32>();
-    let player_2_score = input.iter().map(|m| m.play().1).sum::<u32>();
-
-    player_2_score
+fn solve_part_2(input: &[Part2Move]) -> u32 {
+    input.iter().map(|m| m.play().1).sum::<u32>()
 }
 
 #[cfg(test)]
@@ -151,9 +166,8 @@ mod tests {
     #[test]
     fn test_example() {
         let input = get_input();
-        let input = parse_input(input);
 
-        // assert_eq!(solve_part_1(&input), 15);
-        assert_eq!(solve_part_2(&input), 1);
+        assert_eq!(solve_part_1(&part_1_parse_input(input)), 15);
+        assert_eq!(solve_part_2(&part_2_parse_input(input)), 12);
     }
 }
