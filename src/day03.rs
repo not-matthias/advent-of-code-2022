@@ -46,7 +46,7 @@ impl Rucksack {
     pub fn contains_item(&self, item: &Item) -> bool {
         let (part1, part2) = self.items.split_at(self.items.len() / 2);
 
-        part1.contains(&item) && part2.contains(&item)
+        part1.contains(item) && part2.contains(item)
     }
 }
 
@@ -55,20 +55,18 @@ fn parse_input(input: &str) -> Vec<Rucksack> {
     input
         .lines()
         .map(|line| {
-            Rucksack::new(line.chars().map(|c| Item(c)).collect::<Vec<Item>>())
+            Rucksack::new(line.chars().map(Item).collect::<Vec<Item>>())
         })
         .collect::<Vec<_>>()
 }
 
 #[aoc(day3, part1)]
 fn solve_part_1(input: &[Rucksack]) -> u32 {
-    let shared = input
+    input
         .iter()
-        .map(|r| r.shared_items())
-        .flatten()
-        .collect::<Vec<_>>();
-
-    shared.into_iter().map(|i| i.priority() as u32).sum()
+        .flat_map(|r| r.shared_items())
+        .map(|i| i.priority() as u32)
+        .sum()
 }
 
 #[aoc(day3, part2)]
