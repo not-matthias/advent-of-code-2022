@@ -11,6 +11,16 @@ impl Elf {
     pub fn fully_contains(&self, other: &Elf) -> bool {
         self.start <= other.start && self.end >= other.end
     }
+
+    pub fn overlaps(&self, other: &Elf) -> bool {
+        for i in self.start..=self.end {
+            if i >= other.start && i <= other.end {
+                return true;
+            }
+        }
+
+        false
+    }
 }
 
 impl FromStr for Elf {
@@ -67,8 +77,14 @@ fn solve_part_1(input: &[Pair]) -> u32 {
 
 #[aoc(day4, part2)]
 fn solve_part_2(input: &[Pair]) -> u32 {
-    //
-    todo!()
+    let mut count = 0;
+    for pair in input {
+        if pair.elf1.overlaps(&pair.elf2) {
+            count += 1;
+        }
+    }
+
+    count
 }
 
 #[cfg(test)]
@@ -90,6 +106,6 @@ mod tests {
         let input = parse_input(input);
 
         assert_eq!(solve_part_1(&input), 2);
-        assert_eq!(solve_part_2(&input), 0);
+        assert_eq!(solve_part_2(&input), 4);
     }
 }
