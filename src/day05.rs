@@ -16,6 +16,12 @@ pub struct Ship {
     moves: Vec<Move>,
 }
 
+impl Ship {
+    pub fn top_crate_names(&self) -> String {
+        self.crates.iter().filter_map(|c| c.back()).collect()
+    }
+}
+
 impl FromStr for Ship {
     type Err = ();
 
@@ -72,20 +78,25 @@ fn solve_part_1(input: &Ship) -> String {
         }
     }
 
-    let mut result = String::new();
-    for c in &input.crates {
-        if let Some(item) = c.back() {
-            result.push(*item);
-        }
-    }
-
-    result
+    input.top_crate_names()
 }
 
 #[aoc(day5, part2)]
-fn solve_part_2(input: &Ship) -> u32 {
-    //
-    todo!()
+fn solve_part_2(input: &Ship) -> String {
+    let mut input: Ship = input.clone();
+
+    for mv in &input.moves {
+        let mut items = VecDeque::new();
+        for _ in 0..mv.count {
+            if let Some(item) = input.crates[mv.from - 1].pop_back() {
+                items.push_front(item);
+            }
+        }
+
+        input.crates[mv.to - 1].append(&mut items);
+    }
+
+    input.top_crate_names()
 }
 
 #[cfg(test)]
@@ -110,6 +121,6 @@ move 1 from 1 to 2"#
         let input = parse_input(input);
 
         assert_eq!(solve_part_1(&input), "CMZ");
-        // assert_eq!(solve_part_2(&input), 0);
+        assert_eq!(solve_part_2(&input), "MCD");
     }
 }
