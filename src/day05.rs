@@ -30,15 +30,16 @@ impl FromStr for Ship {
 
         // Parse the stack
         //
-        let lines = parts.next().unwrap().lines();
         let stack_count = (input.lines().next().unwrap().len() + 1) / 4;
         let mut crates = vec![VecDeque::new(); stack_count];
 
-        for line in lines {
-            for i in 0..stack_count {
-                if line.chars().nth(i * 4 + 0) == Some('[') {
-                    crates[i].push_front(line.chars().nth(i * 4 + 1).unwrap());
+        for line in parts.next().unwrap().lines() {
+            for (i, c) in crates.iter_mut().enumerate() {
+                if line.chars().nth(i * 4) != Some('[') {
+                    continue;
                 }
+
+                c.push_front(line.chars().nth(i * 4 + 1).unwrap());
             }
         }
 
