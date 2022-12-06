@@ -1,5 +1,4 @@
-use aoc_runner_derive::{aoc, aoc_generator};
-use std::str::FromStr;
+use aoc_runner_derive::aoc;
 
 fn all_different(chunk: &[u8]) -> bool {
     let mut seen = [false; 26];
@@ -13,22 +12,21 @@ fn all_different(chunk: &[u8]) -> bool {
     true
 }
 
-#[aoc(day6, part1)]
-fn solve_part_1(input: &str) -> usize {
-    for (i, chunk) in input.as_bytes().windows(4).enumerate() {
+fn find_marker(input: &str, packet_size: usize) -> usize {
+    for (i, chunk) in input.as_bytes().windows(packet_size).enumerate() {
         if all_different(chunk) {
-            return i + 4;
+            return i + packet_size;
         }
     }
 
-    unreachable!()
+    unreachable!();
 }
 
+#[aoc(day6, part1)]
+fn solve_part_1(input: &str) -> usize { find_marker(input, 4) }
+
 #[aoc(day6, part2)]
-fn solve_part_2(input: &str) -> u32 {
-    //
-    todo!()
-}
+fn solve_part_2(input: &str) -> usize { find_marker(input, 14) }
 
 #[cfg(test)]
 mod tests {
