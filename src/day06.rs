@@ -38,6 +38,10 @@ mod tests {
         assert_eq!(solve_part_1("bvwbjplbgvbhsrlpgdmjqwftvncz"), 5);
         assert_eq!(solve_part_1("nppdvjthqldpwncqszvftbrmjlhg"), 6);
         assert_eq!(solve_part_1("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 10);
-        // assert_eq!(solve_part_2(input), 0);
+        assert_eq!(solve_part_2("mjqjpqmgbljsphdztnvjfqwrcgsmlb"), 19);
+        assert_eq!(solve_part_2("bvwbjplbgvbhsrlpgdmjqwftvncz"), 23);
+        assert_eq!(solve_part_2("nppdvjthqldpwncqszvftbrmjlhg"), 23);
+        assert_eq!(solve_part_2("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 29);
+        assert_eq!(solve_part_2("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"), 26);
     }
 }
